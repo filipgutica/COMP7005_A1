@@ -54,6 +54,10 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>txtIP</tabstop>
+  <tabstop>txtPort</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

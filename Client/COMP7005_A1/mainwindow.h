@@ -1,9 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+
+
 #include <QMainWindow>
 #include <QtNetwork>
-#include "client.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,21 +22,22 @@ private slots:
     void on_actionConnect_triggered();
     void ReadControlLine();
 
+    void on_listView_doubleClicked(const QModelIndex &index);
+
 private:
     Ui::MainWindow *ui;
     QTcpSocket *_socket;
-    QTcpServer *_tcpServ;
-    QByteArray _fileList;
-    int _totalFileSize;
-    int _received;
 
     QString _ip;
     QString _port;
     QString _fileName;
     bool _fileListReceived;
     bool _fileTransferInitiated;
+    QStringList *_fileList;
 
     void ConnectTCP(QString, QString);
+    void UpdateFilelist();
+    void WriteTCP(QByteArray);
 };
 
 #endif // MAINWINDOW_H
