@@ -15,8 +15,8 @@ void ServerThread::run()
         return;
     }
 
-    connect(_tcpSocket, SIGNAL(readyRead()), this, SLOT(readSocket()));
-    connect(this, SIGNAL(BytesReady(QByteArray)), this, SLOT(writeToSocket(QByteArray)));
+    connect(_tcpSocket, SIGNAL(readyRead()), this, SLOT(readSocket()), Qt::DirectConnection);
+    connect(this, SIGNAL(BytesReady(QByteArray)), this, SLOT(writeToSocket(QByteArray)), Qt::DirectConnection);
 
      qDebug() << "Socket Descriptor: " << _socketDescriptor;
 
@@ -61,8 +61,8 @@ void ServerThread::readSocket()
     QByteArray tcpbytes;
 
     tcpbytes.append(s);
-
-    emit(BytesReady(tcpbytes));
+     _tcpSocket->write(tcpbytes);
+   // emit(BytesReady(tcpbytes));
 
 }
 
