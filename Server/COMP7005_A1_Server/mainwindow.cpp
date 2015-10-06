@@ -32,7 +32,7 @@ void MainWindow::acceptConnection()
 {
     QTcpSocket *clientConnection = _tcpServ->nextPendingConnection();
 
-    QString strInfo = QString("Accepted connection from: %1").arg(clientConnection->peerAddress().toIPv4Address());
+    QString strInfo = QString("Accepted connection from: %1").arg(clientConnection->peerAddress().toString());
     AppendToLog(strInfo);
 
     HandleClient(clientConnection->socketDescriptor());

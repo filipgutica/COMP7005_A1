@@ -65,14 +65,16 @@ void ServerThread::readSocket()
 
      QTcpSocket downloadSocket;
 
+     msleep(100);
      connect(&downloadSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(ProcessSocketError(QAbstractSocket::SocketError)), Qt::DirectConnection);
 
-     downloadSocket.connectToHost((_tcpSocket->peerAddress().toString()), DOWNLOAD_PORT);
+     downloadSocket.connectToHost((_tcpSocket->peerAddress()), DOWNLOAD_PORT);
 
      while(!file.atEnd())
      {
-        if (downloadSocket.waitForConnected())
-            downloadSocket.write(file.readAll());
+      //  if (downloadSocket.waitForConnected())
+        qDebug() << "Writing: " << file.readAll();
+        downloadSocket.write(file.readAll());
      }
 
      downloadSocket.close();
