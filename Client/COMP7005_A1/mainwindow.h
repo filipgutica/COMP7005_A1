@@ -21,7 +21,6 @@ public:
 private slots:
     void on_actionConnect_triggered();
     void ReadControlLine();
-
     void on_listView_doubleClicked(const QModelIndex &index);
 
 private:

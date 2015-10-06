@@ -16,7 +16,7 @@ void ServerThread::run()
     }
 
     connect(_tcpSocket, SIGNAL(readyRead()), this, SLOT(readSocket()), Qt::DirectConnection);
-    connect(this, SIGNAL(BytesReady(QByteArray)), this, SLOT(writeToSocket(QByteArray)), Qt::DirectConnection);
+
 
      qDebug() << "Socket Descriptor: " << _socketDescriptor;
 
@@ -62,12 +62,26 @@ void ServerThread::readSocket()
 
     tcpbytes.append(s);
      _tcpSocket->write(tcpbytes);
-   // emit(BytesReady(tcpbytes));
+
+     QTcpSocket downloadSocket;
+
+     connect(&downloadSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(ProcessSocketError(QAbstractSocket::SocketError)), Qt::DirectConnection);
+
+     downloadSocket.connectToHost((_tcpSocket->peerAddress().toString()), DOWNLOAD_PORT);
+
+     while(!file.atEnd())
+     {
+        if (downloadSocket.waitForConnected())
+            downloadSocket.write(file.readAll());
+     }
+
+     downloadSocket.close();
+     downloadSocket.deleteLater();
 
 }
 
-void ServerThread::writeToSocket(QByteArray bytes)
+void ServerThread::ProcessSocketError(QAbstractSocket::SocketError err)
 {
-      qDebug() << "Sending: " << bytes;
-    _tcpSocket->write(bytes);
+    qDebug() << err;
 }
+

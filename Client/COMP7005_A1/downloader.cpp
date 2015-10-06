@@ -12,7 +12,7 @@ Downloader::Downloader(QWidget *parent) :
     _bytesExpected = 0;
 
     connect(_tcpServ, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
-    connect(_sock, SIGNAL(readyRead()), this, SLOT(readSocket()));
+
 }
 
 Downloader::~Downloader()
@@ -26,9 +26,11 @@ bool Downloader::SetFileName(QString s)
 
     _file = new QFile(_fName);
 
+    qDebug() << "Creating file: " << _file->fileName();
+
     if (!_file->open(QFile::WriteOnly))
     {
-        qDebug() << "File open fail";
+        qDebug() << "File open fail " << _file->errorString();
         return false;
     }
 
@@ -66,6 +68,7 @@ void Downloader::StartDownloader()
 void Downloader::acceptConnection()
 {
     _sock = _tcpServ->nextPendingConnection();
+    connect(_sock, SIGNAL(readyRead()), this, SLOT(readSocket()));
     _tcpServ->close();
 }
 
@@ -95,18 +98,18 @@ void Downloader::on_btnCancel_clicked()
 {
     _bytesReceived = 0;
 
-    if (!_file)
+    if (_file)
     {
         _file->deleteLater();
         _file->close();
     }
 
-    if (!_sock)
+    if (_sock)
     {
         _sock->close();
     }
 
-    if (!_tcpServ)
+    if (_tcpServ)
     {
         _tcpServ->close();
     }

@@ -102,7 +102,7 @@ void MainWindow::UpdateFilelist()
 void MainWindow::on_listView_doubleClicked(const QModelIndex &index)
 {
     _fileName = index.data().toString();
-
+    _fileName = _fileName.split("/").back();
     QString s = QString("%1").arg(index.row());
     QByteArray tcpBytes;
     tcpBytes.append(s);

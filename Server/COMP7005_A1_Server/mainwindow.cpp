@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
     updateFileList();
 
     connect(_tcpServ, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
+    connect(this, SIGNAL(valueChanged(QString)), ui->log, SLOT(append(QString)));
 }
 
 MainWindow::~MainWindow()
@@ -31,6 +32,9 @@ void MainWindow::acceptConnection()
 {
     QTcpSocket *clientConnection = _tcpServ->nextPendingConnection();
 
+    QString strInfo = QString("Accepted connection from: %1").arg(clientConnection->peerAddress().toIPv4Address());
+    AppendToLog(strInfo);
+
     HandleClient(clientConnection->socketDescriptor());
 
 }
@@ -44,11 +48,11 @@ void MainWindow::HandleClient(int socketDescriptor)
     thrd->start();
 }
 
-
-void MainWindow::handleDisconnect()
+void MainWindow::AppendToLog(QString s)
 {
-
+    emit valueChanged(s);
 }
+
 
 void MainWindow::loadFiles()
 {
@@ -77,5 +81,8 @@ void MainWindow::on_actionStart_Server_triggered()
                                      tr("Unable to start the server: %1.")
                                      .arg(_tcpServ->errorString()));
     }
+
+    QString strInfo = QString("Server listening on port: %1").arg(DEFAULT_PORT);
+    AppendToLog(strInfo);
 
 }

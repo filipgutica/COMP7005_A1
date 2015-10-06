@@ -1,6 +1,8 @@
 #ifndef SERVERTHREAD_H
 #define SERVERTHREAD_H
 
+#define DOWNLOAD_PORT 7575
+
 #include <QThread>
 #include <QtNetwork>
 
@@ -16,7 +18,7 @@ signals:
 
 private slots:
      void readSocket();
-     void writeToSocket(QByteArray);
+     void ProcessSocketError(QAbstractSocket::SocketError);
 
 private:
      int _socketDescriptor;

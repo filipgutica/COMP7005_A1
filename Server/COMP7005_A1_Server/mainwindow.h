@@ -18,14 +18,16 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     void loadFiles();
     void updateFileList();
-
+    void AppendToLog(QString);
     void HandleClient(int);
     ~MainWindow();
+
+signals:
+    void valueChanged(QString);
 
 private slots:
     void on_actionStart_Server_triggered();
     void acceptConnection();
-    void handleDisconnect();
 
 private:
     Ui::MainWindow *ui;
