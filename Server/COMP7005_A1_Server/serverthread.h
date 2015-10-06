@@ -24,6 +24,7 @@ private:
      int _socketDescriptor;
      QStringList _fileList;
      QTcpSocket *_tcpSocket;
+     QTcpSocket *_downloadSocket;
 };
 
 #endif // SERVERTHREAD_H

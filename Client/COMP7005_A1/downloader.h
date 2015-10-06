@@ -21,6 +21,8 @@ public:
     bool SetFileName(QString);
     bool SetBytesExpected(int);
     void StartDownloader();
+    bool SetSocket(int);
+    void SetProgress(int);
 
 private slots:
 

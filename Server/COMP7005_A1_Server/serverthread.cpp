@@ -20,25 +20,26 @@ void ServerThread::run()
 
      qDebug() << "Socket Descriptor: " << _socketDescriptor;
 
-     for (int i = 0; i < (_fileList.length() - 1); i++)
+     QString s = "Files: ";
+     QByteArray tcpbytes;
+     for (int i = 0; i < (_fileList.length()); i++)
      {
          qDebug() << _fileList.at(i);
 
-        QString s = QString("Files: %1").arg(_fileList.at(i));
+        s.append(_fileList.at(i));
 
-        QByteArray tcpbytes;
         tcpbytes.append(s);
-        qDebug() << "tcp bytes: " << tcpbytes;
-        _tcpSocket->write(tcpbytes);
+
      }
+     qDebug() << "tcp bytes: " << tcpbytes;
+     _tcpSocket->write(tcpbytes);
 
-
-     QString s = QString("Last: %1").arg(_fileList.back());
+  /*   QString s = QString("Last: %1").arg(_fileList.back());
      QByteArray tcpbytes;
      tcpbytes.append(s);
      qDebug() << "tcp bytes: " << tcpbytes;
      if( _tcpSocket->waitForConnected() )
-        _tcpSocket->write(tcpbytes);
+        _tcpSocket->write(tcpbytes);*/
 
      exec();
 
@@ -47,38 +48,44 @@ void ServerThread::run()
 void ServerThread::readSocket()
 {
     QByteArray data = _tcpSocket->readAll();
-    qDebug() << data;
-    int index = atoi(data.data());
-    QFile file(_fileList.at(index));
+    QRegExp rxIndex("Index: ");
+    QRegExp rxFileName("FileName: ");
+    QRegExp rxFileSize("Size: ");
 
-    if (!file.open(QFile::ReadWrite))
+    qDebug() << "Server received: " << data;
+    if (rxIndex.indexIn(data.data()) != -1)
     {
-        this->exit();
-        return;
+        char *tok = strtok(data.data(), ":");
+        tok = strtok(NULL, ":");
+
+        int index = atoi(tok);
+        QFile file(_fileList.at(index));
+
+        if (!file.open(QFile::ReadWrite))
+        {
+            this->exit();
+            return;
+        }
+
+        QString s = QString("Size: %1").arg(file.size());
+        QByteArray tcpbytes;
+
+        tcpbytes.append(s);
+        _tcpSocket->write(tcpbytes);
+        _downloadSocket = new QTcpSocket();
+
+        connect(_downloadSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(ProcessSocketError(QAbstractSocket::SocketError)), Qt::DirectConnection);
+
+       _downloadSocket->connectToHost("localhost", DOWNLOAD_PORT);
+
+        while(!file.atEnd())
+        {
+            _downloadSocket->write(file.readAll());
+        }
+
+        _downloadSocket->close();
+        _downloadSocket->deleteLater();
     }
-
-    QString s = QString("Size: %1").arg(file.size());
-    QByteArray tcpbytes;
-
-    tcpbytes.append(s);
-     _tcpSocket->write(tcpbytes);
-
-     QTcpSocket downloadSocket;
-
-     msleep(100);
-     connect(&downloadSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(ProcessSocketError(QAbstractSocket::SocketError)), Qt::DirectConnection);
-
-     downloadSocket.connectToHost((_tcpSocket->peerAddress()), DOWNLOAD_PORT);
-
-     while(!file.atEnd())
-     {
-      //  if (downloadSocket.waitForConnected())
-        qDebug() << "Writing: " << file.readAll();
-        downloadSocket.write(file.readAll());
-     }
-
-     downloadSocket.close();
-     downloadSocket.deleteLater();
 
 }
 

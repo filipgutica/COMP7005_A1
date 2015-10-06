@@ -11,8 +11,6 @@ Downloader::Downloader(QWidget *parent) :
     _bytesReceived = 0;
     _bytesExpected = 0;
 
-    connect(_tcpServ, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
-
 }
 
 Downloader::~Downloader()
@@ -57,8 +55,10 @@ void Downloader::StartDownloader()
     ui->progressBar->setMaximum(_bytesExpected);
 
     _tcpServ->listen(QHostAddress::Any, DOWNLOAD_PORT);
+    connect(_tcpServ, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
+    qDebug() << "Downloader listening";
 
-    if (!_tcpServ->isListening() && !_tcpServ->listen())
+    while (!_tcpServ->isListening() && !_tcpServ->listen())
     {
         qDebug() << "I'm not listening";
         return;
@@ -71,6 +71,13 @@ void Downloader::acceptConnection()
     qDebug() << "Downloader Accepted connection: " << _sock->socketDescriptor();
     connect(_sock, SIGNAL(readyRead()), this, SLOT(readSocket()));
     _tcpServ->close();
+}
+
+bool Downloader::SetSocket(int socketDescriptor)
+{
+    _sock->setSocketDescriptor(socketDescriptor);
+
+    return true;
 }
 
 void Downloader::readSocket()
@@ -116,4 +123,9 @@ void Downloader::on_btnCancel_clicked()
     }
 
     this->close();
+}
+
+void Downloader::SetProgress(int prog)
+{
+    ui->progressBar->setValue(prog);
 }

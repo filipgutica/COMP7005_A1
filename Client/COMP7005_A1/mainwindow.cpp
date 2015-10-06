@@ -46,20 +46,30 @@ void MainWindow::ReadControlLine()
 {
     QByteArray data = _socket->readAll();
 
-    qDebug() << data;
+    qDebug() << "Client received: " << data;
 
     QRegExp rxAvailableFiles("Files: ");
     QRegExp rxLastFile("Last: ");
     QRegExp rxRequestedFileSize("Size: ");
+    QRegExp rxData("Data: ");
 
     if (rxAvailableFiles.indexIn(data.data()) != -1)
     {
         char *tok = strtok(data.data(), ":");
         tok = strtok(NULL, ":");
+
         _fileList->push_back(QString::fromUtf8(tok));
+
+        while (tok = strtok(NULL, "\n"))
+        {
+            _fileList->push_back(QString::fromUtf8(tok));
+
+        }
+
+        UpdateFilelist();
     }
 
-    if (rxLastFile.indexIn(data.data()) != -1)
+    else if (rxLastFile.indexIn(data.data()) != -1)
     {
         char *tok = strtok(data.data(), ":");
         tok = strtok(NULL, ":");
@@ -68,7 +78,7 @@ void MainWindow::ReadControlLine()
         UpdateFilelist();
     }
 
-    if (rxRequestedFileSize.indexIn(data.data()) != -1)
+    else if (rxRequestedFileSize.indexIn(data.data()) != -1)
     {
         char *tok = strtok(data.data(), ":");
         tok = strtok(NULL, ":");
@@ -83,7 +93,6 @@ void MainWindow::ReadControlLine()
             dl.exec();
         }
     }
-
 
 }
 
@@ -103,7 +112,7 @@ void MainWindow::on_listView_doubleClicked(const QModelIndex &index)
 {
     _fileName = index.data().toString();
     _fileName = _fileName.split("/").back();
-    QString s = QString("%1").arg(index.row());
+    QString s = QString("Index: %1").arg(index.row());
     QByteArray tcpBytes;
     tcpBytes.append(s);
     WriteTCP(tcpBytes);
