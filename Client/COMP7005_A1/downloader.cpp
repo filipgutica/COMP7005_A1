@@ -68,6 +68,7 @@ void Downloader::StartDownloader()
 void Downloader::acceptConnection()
 {
     _sock = _tcpServ->nextPendingConnection();
+    qDebug() << "Downloader Accepted connection: " << _sock->socketDescriptor();
     connect(_sock, SIGNAL(readyRead()), this, SLOT(readSocket()));
     _tcpServ->close();
 }
