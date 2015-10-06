@@ -87,7 +87,6 @@ void MainWindow::ReadControlLine()
 
 }
 
-
 void MainWindow::WriteTCP(QByteArray data)
 {
     if( _socket->waitForConnected() ) {
@@ -104,7 +103,7 @@ void MainWindow::on_listView_doubleClicked(const QModelIndex &index)
 {
     _fileName = index.data().toString();
 
-    QString s = QString("index: %1").arg(index.row());
+    QString s = QString("%1").arg(index.row());
     QByteArray tcpBytes;
     tcpBytes.append(s);
     WriteTCP(tcpBytes);

@@ -12,8 +12,11 @@ public:
      void run();
 
 signals:
+     void BytesReady(QByteArray);
 
-public slots:
+private slots:
+     void readSocket();
+     void writeToSocket(QByteArray);
 
 private:
      int _socketDescriptor;
